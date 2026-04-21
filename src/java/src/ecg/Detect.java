@@ -19,27 +19,58 @@ public class Detect implements Query<VTL,Long> {
 
 	// Choose this to be two times the average length
 	// over the entire signal.
-	private static final double THRESHOLD = 0.0; // TODO
+	private static final double THRESHOLD = 255.306;
 
-	// TODO
+	private boolean isSearching;
+	private long searchEndTs;
+	private int maxV;
+	private long maxTs;
+	
+	private long refractoryUntil; // TS after which a new search can start
 
 	public Detect() {
-		// TODO
+		this.isSearching = false;
+		this.refractoryUntil = -1;
 	}
 
 	@Override
 	public void start(Sink<Long> sink) {
-		// TODO
+		this.isSearching = false;
+		this.refractoryUntil = -1;
 	}
 
 	@Override
 	public void next(VTL item, Sink<Long> sink) {
-		// TODO
+		if (item.ts <= refractoryUntil) {
+			return; // Refractory period
+		}
+		
+		if (isSearching) {
+			if (item.v > maxV) {
+				maxV = item.v;
+				maxTs = item.ts;
+			}
+			if (item.ts >= searchEndTs) {
+				sink.next(maxTs);
+				isSearching = false;
+				refractoryUntil = maxTs + 72;
+			}
+		} else {
+			if (item.l > THRESHOLD) {
+				isSearching = true;
+				searchEndTs = item.ts + 40;
+				maxV = item.v;
+				maxTs = item.ts;
+			}
+		}
 	}
 
 	@Override
 	public void end(Sink<Long> sink) {
-		// TODO
+		if (isSearching) {
+			sink.next(maxTs);
+		}
+		sink.end();
 	}
 	
 }

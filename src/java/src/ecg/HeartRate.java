@@ -11,34 +11,42 @@ public class HeartRate {
 
 	// RR interval length (in milliseconds)
 	public static Query<Integer,Double> qIntervals() {
-		// TODO
-		return null;
+		return Q.pipeline(PeakDetection.qPeaks(), Q.sWindow2((ts1, ts2) -> (ts2 - ts1) * 1000.0 / 360.0));
 	}
 
 	// Average heart rate (over entire signal) in bpm.
 	public static Query<Integer,Double> qHeartRateAvg() {
-		// TODO
-		return null;
+		return Q.pipeline(qIntervals(), Q.foldAvg(), Q.map(avg -> 60000.0 / avg));
 	}
 
 	// Standard deviation of NN interval length (over the entire signal)
 	// in milliseconds.
 	public static Query<Integer,Double> qSDNN() {
-		// TODO
-		return null;
+		return Q.pipeline(qIntervals(), Q.foldStdev());
 	}
 
 	// RMSSD measure (over the entire signal) in milliseconds.
 	public static Query<Integer,Double> qRMSSD() {
-		// TODO
-		return null;
+		return Q.pipeline(
+			qIntervals(),
+			Q.sWindow2((rr1, rr2) -> {
+				double diff = rr2 - rr1;
+				return diff * diff;
+			}),
+			Q.foldAvg(),
+			Q.map(Math::sqrt)
+		);
 	}
 
 	// Proportion (in %) derived by dividing NN50 by the total number
 	// of NN intervals (calculated over the entire signal).
 	public static Query<Integer,Double> qPNN50() {
-		// TODO
-		return null;
+		return Q.pipeline(
+			qIntervals(),
+			Q.sWindow2((rr1, rr2) -> Math.abs(rr2 - rr1) > 50.0 ? 1.0 : 0.0),
+			Q.foldAvg(),
+			Q.map(avg -> avg * 100.0)
+		);
 	}
 
 	public static void main(String[] args) {
