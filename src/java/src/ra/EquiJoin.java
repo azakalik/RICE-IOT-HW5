@@ -1,6 +1,10 @@
 package ra;
 
 import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import dsl.Query;
 import dsl.Sink;
@@ -17,10 +21,16 @@ import utils.Pair;
 
 public class EquiJoin<A,B,T> implements Query<Or<A,B>,Pair<A,B>> {
 
-	// TODO
+	private final Function<A,T> f;
+	private final Function<B,T> g;
+	private final Map<T, List<A>> leftBuffer;
+	private final Map<T, List<B>> rightBuffer;
 
 	private EquiJoin(Function<A,T> f, Function<B,T> g) {
-		// TODO
+		this.f = f;
+		this.g = g;
+		this.leftBuffer = new HashMap<>();
+		this.rightBuffer = new HashMap<>();
 	}
 
 	public static <A,B,T> EquiJoin<A,B,T> from(Function<A,T> f, Function<B,T> g) {
@@ -29,17 +39,38 @@ public class EquiJoin<A,B,T> implements Query<Or<A,B>,Pair<A,B>> {
 
 	@Override
 	public void start(Sink<Pair<A,B>> sink) {
-		// TODO
+		leftBuffer.clear();
+		rightBuffer.clear();
 	}
 
 	@Override
 	public void next(Or<A,B> item, Sink<Pair<A,B>> sink) {
-		// TODO
+		if (item.isLeft()) {
+			A a = item.getLeft();
+			T key = f.apply(a);
+			leftBuffer.computeIfAbsent(key, k -> new ArrayList<>()).add(a);
+			List<B> bs = rightBuffer.get(key);
+			if (bs != null) {
+				for (B b : bs) {
+					sink.next(Pair.from(a, b));
+				}
+			}
+		} else {
+			B b = item.getRight();
+			T key = g.apply(b);
+			rightBuffer.computeIfAbsent(key, k -> new ArrayList<>()).add(b);
+			List<A> as = leftBuffer.get(key);
+			if (as != null) {
+				for (A a : as) {
+					sink.next(Pair.from(a, b));
+				}
+			}
+		}
 	}
 
 	@Override
 	public void end(Sink<Pair<A,B>> sink) {
-		// TODO
+		sink.end();
 	}
 	
 }
