@@ -5,7 +5,7 @@ We strongly recommend that you use Visual Studio Code to do this homework.
 
 ## Relational Algebra
 
-We will explore some operators from relational algebra in the context of streaming data. The programming model of ToyDSL is a natural fit for this setting.
+We will explore some operators from relational algebra in the context of streaming test.data. The programming model of ToyDSL is a natural fit for this setting.
 
 Fill in the code for the package `ra`. There are several `TODO` placeholders.
 
@@ -30,7 +30,7 @@ Fill in the code for the package `ecg`. There are several `TODO` placeholders.
 
 We have provided the class `UTestECG` to help you with testing.
 
-1. Start with the file `Data.java`. Execute the main method to print ECG data to the console.
+1. Start with the file `Data.java`. Execute the main method to print ECG test.data to the console.
 
 2. Continue to implement the curve length transformation in `PeakDetection.java`.
 
@@ -43,7 +43,7 @@ We have provided the class `UTestECG` to help you with testing.
 
 ## Time Series Compression
 
-Implement simple algorithms for compressing and decompressing univariate time series data.
+Implement simple algorithms for compressing and decompressing univariate time series test.data.
 
 We assume that the samples are encoded as bytes, i.e., integers in the range { 0, 1, ..., 255 }.
 

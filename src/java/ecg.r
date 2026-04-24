@@ -5,7 +5,7 @@ library("dplyr")
 library("reshape")
 
 df <-
-  read.table("data/100.csv",
+  read.table("test.data/100.csv",
              col.names=c("ts", "ch0", "ch1"),
              skip=0, header=FALSE, sep=",")
 head(df)
@@ -85,7 +85,7 @@ tail(df)
 
 # restructure the table
 df_var <-
-  melt(data=df, id.vars=c("ts"),
+  melt(test.data=df, id.vars=c("ts"),
        measure.vars = c("ch0", "smooth", "deriv", "length", "avg_length"))
 head(df_var)
 tail(df_var)
